@@ -1,18 +1,19 @@
 import {
 	Body,
 	Controller,
-	Delete,
 	Get,
 	HttpCode,
-	Param,
 	Post,
+	Delete,
 	Put,
 	UsePipes,
-	ValidationPipe
+	ValidationPipe,
+	Param
 } from '@nestjs/common'
 import { Auth } from 'src/auth/decorators/auth.decorators'
 import { CurrentUser } from 'src/auth/decorators/user.decorators'
 import { TimeBlockDto } from './dto/time-block.dto'
+import { UpdateOrderDto } from './dto/update-order.dto'
 import { TimeBlockService } from './time-block.service'
 
 @Controller('user/time-blocks')
@@ -35,6 +36,14 @@ export class TimeBlockController {
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
+	@Put('update-order')
+	@Auth()
+	updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+		return this.timeBlockService.updateOrder(updateOrderDto.ids)
+	}
+
+	@UsePipes(new ValidationPipe())
+	@HttpCode(200)
 	@Put(':id')
 	@Auth()
 	async update(
@@ -48,7 +57,8 @@ export class TimeBlockController {
 	@HttpCode(200)
 	@Delete(':id')
 	@Auth()
-	async delete(@Param('id') id: string) {
-		return this.timeBlockService.delete(id)
+	async delete(@CurrentUser('id') userId: string, @Param('id') id: string) {
+		return this.timeBlockService.delete(id, userId)
 	}
+
 }
